@@ -16,8 +16,34 @@ https://www.cse.lk/api/marketStatus								                  Market open/close s
 https://www.cse.lk/api/marketSummery								                Market summary data	
 https://www.cse.lk/api/aspiData									                    All Share Price Index data	
 https://www.cse.lk/api/snpData									                    S&P Sri Lanka 20 Index data	
-https://www.cse.lk/api/chartData									                  Chart data for stocks	
+https://www.cse.lk/api/chartData									                  INDEX chart series - params: chartId (=sectorId, 1=ASPI 40=S&P) + period 1-5; 'symbol' is ignored	
 https://www.cse.lk/api/allSectors								                    All sector data	
 https://www.cse.lk/api/detailedTrades                                   Detailed Trades
 https://www.cse.lk/api/dailyMarketSummery                               Daily Market Summary
-https://www.cse.lk/api/companyChartDataByStock                              Company Chart Data By Stock 
+https://www.cse.lk/api/companyChartDataByStock                           Per-stock OHLC series - params: stockId (= 'id' from tradeSummary, NOT securityId) + period 1-5
+
+# --- Undocumented endpoints (GET unless noted) ---
+https://www.cse.lk/api/allSecurityCode                                  Full ticker directory (id/name/symbol/active) - lookup table for stockId
+https://www.cse.lk/api/cntSecurity                                      Securities with securityId and board info
+https://www.cse.lk/api/corporateAnnouncementCategory                    Announcement category IDs and names
+https://www.cse.lk/api/smd/categories                                   Disclosure category names
+https://www.cse.lk/api/events?eventType=OT&year=2026                    CSE events grouped by month
+https://www.cse.lk/api/events/top                                       Featured event content
+https://www.cse.lk/api/news/web?top=false&type=BN                       Business news archive
+https://www.cse.lk/api/news/web?top=false&year=2026&type=MR             Market reviews / daily summaries
+https://www.cse.lk/api/news/web?top=true&type=CN&numberOfRecord=3       Latest company news
+https://www.cse.lk/api/notifications                                    Site notices
+https://www.cse.lk/api/banners                                          Homepage banners
+https://www.cse.lk/api/educationalVideos                                Educational video links
+https://www.cse.lk/api/returnAspiSnp                                    Index status flag
+https://www.cse.lk/api/aspi/year                                        [POST] YTD returns for ASPI, S&P SL20, TRI-ASPI
+https://www.cse.lk/api/announcementById                                 [POST form: id] Full announcement body by ID
+https://www.cse.lk/api/smd                                              [POST JSON: companyIds, categories] Disclosure search
+
+# --- Live WebSocket (STOMP) - see WEBSOCKET.md ---
+wss://www.cse.lk/api/ws/websocket                                       Raw STOMP endpoint (recommended)
+https://www.cse.lk/api/ws/info                                          SockJS discovery
+# Feeds: aspi, snp, summary, status, top-gainers, top-looses,
+#        most-active-trades, today-sharePrice, daytrade
+# Subscribe: /topic/<feed> (broadcast) and /user/topic/<feed> (private reply)
+# Request:   /app/request-<feed>

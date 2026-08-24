@@ -38,11 +38,90 @@ Base URL: `https://www.cse.lk/api/`
 | marketSummery                             | Market summary data                                | POST        |                                      |
 | aspiData                                  | All Share Price Index data                         | POST        |                                      |
 | snpData                                   | S&P Sri Lanka 20 Index data                        | POST        |                                      |
-| chartData                                 | Chart data for stocks                              | POST        | symbol, chartId, period              |
+| chartData                                 | Intraday/historical **index** chart series         | POST        | chartId, period (`symbol` is ignored) |
 | allSectors                                | Data for all sectors                               | POST        |                                      |
 | detailedTrades                            | Detailed Trades                                    | POST        |                                      |
 | dailyMarketSummery                        | Daily Market Summary                               | POST        |                                      |
-|companyChartDataByStock                    | Company Chart Data By Stock                        | POST        | stockId , period=1                                     |
+| companyChartDataByStock                   | Per-stock OHLC chart series                        | POST        | stockId, period                      |
+
+> All endpoints above are **POST** with `application/x-www-form-urlencoded`.
+> A `GET` returns **405**, and a JSON body returns **400**.
+
+### ⚠️ Corrections to note
+
+**`chartData` returns index data, not stock data.** The `symbol` parameter is
+**not required and is silently ignored** — passing `LOLC.N0000` or `SAMP.N0000`
+returns byte-identical results. Only `chartId` + `period` matter, and `chartId`
+is actually a **sectorId**:
+
+| chartId | Series |
+| --- | --- |
+| `1` | ASPI (All Share Price Index) |
+| `40` | S&P Sri Lanka 20 |
+| `223` | Energy sector — and any other `sectorId` from `allSectors` |
+
+`period`: `1` intraday (~298 points) · `2` week (5) · `3` month (20) · `4` quarter (60) · `5` year (240).
+
+```bash
+curl -X POST https://www.cse.lk/api/chartData -d "chartId=40&period=1"
+```
+
+**`companyChartDataByStock` — `stockId` is *not* the `securityId`** returned by
+`companyInfoSummery`. It is the `id` field from `tradeSummary` / `allSecurityCode`.
+For example `stockId=378` is Colombo Land (CLND), **not** LOLC — LOLC is `stockId=410`.
+`period` accepts `1`–`5`; values `6` and `7` silently alias to `2`.
+
+**Row-count limits.** `todaySharePrice`, `topGainers`, `topLooses` and
+`mostActiveTrades` each return only **10 rows**, not the full market. For all
+listed securities use `tradeSummary` (281 rows) or `detailedTrades` (1,319 rows).
+
+**`getNonComplianceAnnouncements`** currently returns an empty array — the
+endpoint works, there is simply no active data.
+
+---
+
+## Undocumented Endpoints 🕵️
+
+Found by inspecting the CSE portal's own JavaScript bundles. These are **GET**
+requests (a POST returns 405), except where noted.
+
+| Endpoint | Method | Delivers |
+| --- | --- | --- |
+| `allSecurityCode` | GET | **Full ticker directory** — id, name, symbol, active flag. The lookup table for `stockId` |
+| `cntSecurity` | GET | Securities with `securityId` and board info |
+| `corporateAnnouncementCategory` | GET | All announcement category IDs and names |
+| `smd/categories` | GET | 40+ disclosure category names |
+| `events?eventType=OT&year=2026` | GET | CSE events grouped by month |
+| `events/top` | GET | Featured event content |
+| `news/web?top=false&type=BN` | GET | Business news archive (~1.6 MB) |
+| `news/web?top=false&year=2026&type=MR` | GET | Market reviews / daily summaries |
+| `news/web?top=true&type=CN&numberOfRecord=3` | GET | Latest company news |
+| `notifications` | GET | Site notices |
+| `banners` / `educationalVideos` / `returnAspiSnp` | GET | Site content and status flag |
+| `aspi/year` | POST | Year-to-date returns for ASPI, S&P SL20 and TRI-ASPI |
+| `announcementById` | POST (form: `id`) | Full announcement body by announcement ID |
+| `smd` | POST (**JSON**) | Disclosure search — `{"companyIds":[...],"categories":[...]}` |
+
+Note `smd` is the one endpoint that requires `application/json` rather than form
+encoding, and both `companyIds` and `categories` must be non-empty.
+
+Authentication endpoints (`signInNew`, `signUpSingle`, `verifyOtp`,
+`forgetPassword`) and an OAuth server at `identity.cse.lk` also exist. They are
+listed here for completeness only and are **not** documented or tested.
+
+---
+
+## Live WebSocket Feed 📡
+
+The portal pushes real-time data over **STOMP-over-WebSocket** at
+`wss://www.cse.lk/api/ws/websocket` — no API key, no auth. Nine feeds cover ASPI,
+S&P SL20, market summary and status, top gainers/losers, most active trades,
+today's share prices and day trades. It also supports **request/reply**, so a
+single connection can replace nine REST calls.
+
+👉 See **[WEBSOCKET.md](WEBSOCKET.md)** for the full guide and
+[`examples/cse_websocket_client.py`](examples/cse_websocket_client.py) for a
+working client.
 
 ---
 

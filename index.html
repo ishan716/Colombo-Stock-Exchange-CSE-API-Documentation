@@ -29,7 +29,8 @@
   <header>
     <h1>Colombo Stock Exchange API — Documentation</h1>
     <p>Base URL: <code>https://www.cse.lk/api/</code></p>
-    <p>All endpoints use <strong>POST</strong> requests with <code>application/x-www-form-urlencoded</code> data.</p>
+    <p>All endpoints below use <strong>POST</strong> requests with <code>application/x-www-form-urlencoded</code> data. A <code>GET</code> returns 405; a JSON body returns 400.</p>
+    <p style="margin-top:10px"><strong>📡 Live WebSocket feed:</strong> <code>wss://www.cse.lk/api/ws/websocket</code> — see <a href="WEBSOCKET.md" style="color:var(--accent)">WEBSOCKET.md</a></p>
   </header>
 
   <section>
@@ -72,7 +73,7 @@
 
     <details class="endpoint"><summary>snpData</summary><div class="endpoint-content"><pre>{"value": 5825.39, "change": -2.46, ...}</pre></div></details>
 
-    <details class="endpoint"><summary>chartData</summary><div class="endpoint-content"><p>Requires <code>symbol</code> but may return HTTP 400 for some values.</p></div></details>
+    <details class="endpoint"><summary>chartData</summary><div class="endpoint-content"><p><strong>Returns INDEX data, not stock data.</strong> The <code>symbol</code> parameter is <em>not required and is silently ignored</em>.</p><p><strong>Parameters:</strong> <code>chartId</code> + <code>period</code> (both required, else HTTP 400)</p><p><code>chartId</code> is a <strong>sectorId</strong>: <code>1</code> = ASPI, <code>40</code> = S&amp;P SL20, <code>223</code> = Energy, or any <code>sectorId</code> from <code>allSectors</code>.</p><p><code>period</code>: <code>1</code> intraday &middot; <code>2</code> week &middot; <code>3</code> month &middot; <code>4</code> quarter &middot; <code>5</code> year</p><pre>curl -X POST https://www.cse.lk/api/chartData -d "chartId=40&amp;period=1"</pre></div></details>
 
     <details class="endpoint"><summary>allSectors</summary><div class="endpoint-content"><pre>[{"symbol": "EGY", "indexName": "S&P/CSE Energy Industry Group Index", ...}]</pre></div></details>
 
@@ -138,7 +139,34 @@
       ],
     ]
     </details>
-    <details class="endpoint"><summary>companyChartDataByStock</summary><div class="endpoint-content"><pre>{"reqTradeSummery": {'chartData': [{'h': 562.0, 'l': 562.0, 'o': None, 's': 51866050, 'q': 32, 'p': 562.0, 'c': 1.75, 'pc': 0.31236055332440876, 't': 1762401600377, 'n': None, 'id': 51866050}, ...}]}</pre></div></details>
+    <details class="endpoint"><summary>companyChartDataByStock</summary><div class="endpoint-content"><p><strong>Parameters:</strong> <code>stockId</code>, <code>period</code> (1&ndash;5)</p><p>⚠️ <code>stockId</code> is <strong>not</strong> the <code>securityId</code> from <code>companyInfoSummery</code> — it is the <code>id</code> field from <code>tradeSummary</code>. e.g. <code>378</code> = CLND, while LOLC is <code>410</code>.</p><pre>{"reqTradeSummery": {'chartData': [{'h': 562.0, 'l': 562.0, 'o': None, 's': 51866050, 'q': 32, 'p': 562.0, 'c': 1.75, 'pc': 0.31236055332440876, 't': 1762401600377, 'n': None, 'id': 51866050}, ...}]}</pre></div></details>
+  </section>
+
+  <section style="margin-top:30px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:14px">Undocumented Endpoints (GET unless noted)</h2>
+    <table>
+      <tr><th>Endpoint</th><th>Method</th><th>Delivers</th></tr>
+      <tr><td><code>allSecurityCode</code></td><td>GET</td><td>Full ticker directory — the lookup table for <code>stockId</code></td></tr>
+      <tr><td><code>cntSecurity</code></td><td>GET</td><td>Securities with <code>securityId</code> and board info</td></tr>
+      <tr><td><code>corporateAnnouncementCategory</code></td><td>GET</td><td>Announcement category IDs and names</td></tr>
+      <tr><td><code>smd/categories</code></td><td>GET</td><td>Disclosure category names</td></tr>
+      <tr><td><code>events?eventType=OT&amp;year=2026</code></td><td>GET</td><td>CSE events grouped by month</td></tr>
+      <tr><td><code>events/top</code></td><td>GET</td><td>Featured event content</td></tr>
+      <tr><td><code>news/web?top=false&amp;type=BN</code></td><td>GET</td><td>Business news archive</td></tr>
+      <tr><td><code>news/web?top=false&amp;year=2026&amp;type=MR</code></td><td>GET</td><td>Market reviews / daily summaries</td></tr>
+      <tr><td><code>notifications</code></td><td>GET</td><td>Site notices</td></tr>
+      <tr><td><code>banners</code>, <code>educationalVideos</code>, <code>returnAspiSnp</code></td><td>GET</td><td>Site content and status flag</td></tr>
+      <tr><td><code>aspi/year</code></td><td>POST</td><td>YTD returns for ASPI, S&amp;P SL20, TRI-ASPI</td></tr>
+      <tr><td><code>announcementById</code></td><td>POST</td><td>Full announcement body by <code>id</code></td></tr>
+      <tr><td><code>smd</code></td><td>POST (JSON)</td><td>Disclosure search — <code>companyIds</code>, <code>categories</code></td></tr>
+    </table>
+  </section>
+
+  <section style="margin-top:30px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:14px">Live WebSocket Feed 📡</h2>
+    <p style="color:var(--muted);line-height:1.6">STOMP over WebSocket at <code>wss://www.cse.lk/api/ws/websocket</code> — no API key, no auth. Subscribe to <code>/topic/&lt;feed&gt;</code> for broadcasts, or publish to <code>/app/request-&lt;feed&gt;</code> and get an immediate snapshot on <code>/user/topic/&lt;feed&gt;</code>.</p>
+    <p style="color:var(--muted);margin-top:8px">Feeds: <code>aspi</code>, <code>snp</code>, <code>summary</code>, <code>status</code>, <code>top-gainers</code>, <code>top-looses</code>, <code>most-active-trades</code>, <code>today-sharePrice</code>, <code>daytrade</code>.</p>
+    <p style="margin-top:10px">Full guide: <a href="WEBSOCKET.md" style="color:var(--accent)">WEBSOCKET.md</a></p>
   </section>
 </body>
 </html>
