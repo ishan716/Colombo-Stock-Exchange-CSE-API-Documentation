@@ -7,6 +7,7 @@
 #   ./dashboard/run.sh --no-browser
 #   ./dashboard/run.sh --reload        # restart on source edits
 #
+# Linux, macOS, WSL and Git Bash. For PowerShell or cmd.exe use run.ps1.
 # Runs from any directory. Ctrl-C stops the server.
 
 set -euo pipefail
@@ -17,7 +18,7 @@ OPEN_BROWSER=1
 RELOAD=0
 
 usage() {
-    sed -n '3,11p' "$0" | sed 's/^# \?//'
+    sed -n '3,12p' "$0" | sed 's/^# \?//'
     exit "${1:-0}"
 }
 
@@ -46,41 +47,103 @@ URL="http://$HOST:$PORT"
 
 say() { printf '  %s\n' "$1"; }
 
+# --- platform shims ---------------------------------------------------------
+
+# A system python to build the venv with. Windows generally has `python` or the
+# `py` launcher rather than `python3`.
+PYTHON=()
+for c in python3 python; do
+    if command -v "$c" >/dev/null 2>&1 \
+       && "$c" -c 'import sys; sys.exit(sys.version_info[0] != 3)' >/dev/null 2>&1; then
+        PYTHON=("$c")
+        break
+    fi
+done
+if [ ${#PYTHON[@]} -eq 0 ] && command -v py >/dev/null 2>&1 \
+   && py -3 -c 'import sys; sys.exit(sys.version_info[0] != 3)' >/dev/null 2>&1; then
+    PYTHON=(py -3)
+fi
+if [ ${#PYTHON[@]} -eq 0 ]; then
+    echo "no Python 3 on PATH (tried python3, python, py -3)" >&2
+    exit 1
+fi
+
+# venv layout differs by platform: bin/python on POSIX, Scripts/python.exe on
+# Windows (Python's "nt" install scheme).
+venv_python() {
+    if [ -x "$VENV/bin/python" ]; then
+        printf '%s\n' "$VENV/bin/python"
+    elif [ -x "$VENV/Scripts/python.exe" ]; then
+        printf '%s\n' "$VENV/Scripts/python.exe"
+    else
+        return 1
+    fi
+}
+
+open_url() {
+    # xdg-open before open: on some Linux distros `open` is openvt, not a browser.
+    if command -v wslview >/dev/null 2>&1; then
+        wslview "$1" >/dev/null 2>&1 && return 0
+    fi
+    if command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$1" >/dev/null 2>&1 && return 0
+    fi
+    if command -v open >/dev/null 2>&1; then
+        open "$1" >/dev/null 2>&1 && return 0
+    fi
+    # explorer.exe reaches the Windows browser from WSL and Git Bash, but exits
+    # non-zero even when it succeeds, so its status is not checked.
+    if command -v explorer.exe >/dev/null 2>&1; then
+        explorer.exe "$1" >/dev/null 2>&1 || true
+        return 0
+    fi
+    if command -v cmd >/dev/null 2>&1; then
+        cmd //c start "" "$1" >/dev/null 2>&1 && return 0
+    fi
+    return 1
+}
+
+port_is_open() {
+    "${PYTHON[@]}" - "$HOST" "$PORT" <<'PY' >/dev/null 2>&1
+import socket, sys
+s = socket.socket()
+s.settimeout(1)
+code = s.connect_ex((sys.argv[1], int(sys.argv[2])))
+s.close()
+sys.exit(0 if code == 0 else 1)
+PY
+}
+
+health_ok() {
+    curl -fsS -m 2 "$URL/api/health" >/dev/null 2>&1
+}
+
 # --- already running? -------------------------------------------------------
 # If something answers our health route on this port, it is this dashboard --
 # just open it instead of failing on a port clash.
-if curl -fsS -m 2 "$URL/api/health" >/dev/null 2>&1; then
+if health_ok; then
     say "already running at $URL"
     if [ "$OPEN_BROWSER" = 1 ]; then
-        for o in xdg-open open; do
-            if command -v "$o" >/dev/null 2>&1; then
-                "$o" "$URL" >/dev/null 2>&1 && break
-            fi
-        done
+        open_url "$URL" || say "open $URL in your browser"
     fi
     exit 0
 fi
 
-# Something else holds the port.
-if command -v python3 >/dev/null 2>&1 && python3 - "$HOST" "$PORT" <<'PY' 2>/dev/null
-import socket, sys
-host, port = sys.argv[1], int(sys.argv[2])
-s = socket.socket()
-s.settimeout(1)
-sys.exit(0 if s.connect_ex((host, port)) == 0 else 1)
-PY
-then
+if port_is_open; then
     echo "port $PORT on $HOST is in use by something that is not this dashboard." >&2
     echo "try: $0 --port $((PORT + 1))" >&2
     exit 1
 fi
 
 # --- environment ------------------------------------------------------------
-if [ ! -x "$VENV/bin/python" ]; then
+if ! venv_python >/dev/null; then
     say "creating virtualenv at .venv"
-    python3 -m venv "$VENV"
+    "${PYTHON[@]}" -m venv "$VENV"
 fi
-PY_BIN="$VENV/bin/python"
+PY_BIN="$(venv_python)" || {
+    echo "virtualenv at $VENV has no python -- delete it and re-run" >&2
+    exit 1
+}
 
 if ! "$PY_BIN" -c 'import fastapi, uvicorn, httpx, websocket' >/dev/null 2>&1; then
     say "installing dependencies"
@@ -113,28 +176,24 @@ trap cleanup INT TERM EXIT
 # --- wait for readiness, then open -----------------------------------------
 # Opening before the server answers would just show a connection error.
 ready=0
-for _ in $(seq 1 60); do
+tries=0
+while [ "$tries" -lt 60 ]; do
     if ! kill -0 "$SERVER_PID" 2>/dev/null; then
         echo "server exited during startup -- see the output above" >&2
         wait "$SERVER_PID" 2>/dev/null || true
         exit 1
     fi
-    if curl -fsS -m 2 "$URL/api/health" >/dev/null 2>&1; then
+    if health_ok; then
         ready=1
         break
     fi
+    tries=$((tries + 1))
     sleep 0.5
 done
 
 if [ "$ready" = 1 ]; then
     if [ "$OPEN_BROWSER" = 1 ]; then
-        opened=0
-        for o in xdg-open open; do
-            if command -v "$o" >/dev/null 2>&1; then
-                "$o" "$URL" >/dev/null 2>&1 && opened=1 && break
-            fi
-        done
-        [ "$opened" = 1 ] || say "open $URL in your browser"
+        open_url "$URL" || say "open $URL in your browser"
     else
         say "ready at $URL"
     fi

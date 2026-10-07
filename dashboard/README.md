@@ -9,21 +9,39 @@ Built on the API notes in [`../README.md`](../README.md) and
 
 ## Run it
 
+Linux, macOS, WSL, Git Bash:
+
 ```bash
 ./dashboard/run.sh
 ```
 
-That creates `.venv` if missing, installs dependencies, starts the server and
-opens <http://127.0.0.1:8000> once it answers. Ctrl-C stops it. Runs from any
-directory.
+Windows PowerShell:
 
-| Flag | Effect |
-| --- | --- |
-| `--port N` / `-p N` | Serve on a different port (default 8000) |
-| `--host H` | Bind address (default 127.0.0.1) |
-| `--no-browser` / `-n` | Start without opening a browser |
-| `--reload` / `-r` | Restart on source edits |
-| `--help` / `-h` | Usage |
+```powershell
+.\dashboard\run.ps1
+```
+
+Either one creates `.venv` if missing, installs dependencies, starts the server
+and opens <http://127.0.0.1:8000> once it answers. Ctrl-C stops it. Both run from
+any directory.
+
+| `run.sh` | `run.ps1` | Effect |
+| --- | --- | --- |
+| `--port N` / `-p N` | `-Port N` | Serve on a different port (default 8000) |
+| `--host H` | `-BindHost H` | Bind address (default 127.0.0.1) |
+| `--no-browser` / `-n` | `-NoBrowser` | Start without opening a browser |
+| `--reload` / `-r` | `-Reload` | Restart on source edits |
+| `--help` / `-h` | `-?` | Usage |
+
+`run.ps1` takes `-BindHost` rather than `-Host` because `$Host` is a PowerShell
+automatic variable.
+
+If PowerShell refuses to run the script, its execution policy is blocking local
+scripts:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\dashboard\run.ps1
+```
 
 Re-running it while the dashboard is already up just opens the browser again
 rather than failing on the port. If something else holds the port, it says so and
