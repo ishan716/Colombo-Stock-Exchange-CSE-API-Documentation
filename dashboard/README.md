@@ -10,11 +10,31 @@ Built on the API notes in [`../README.md`](../README.md) and
 ## Run it
 
 ```bash
-pip install -r requirements.txt
-uvicorn dashboard.server.main:app --reload      # from the repo root
+./dashboard/run.sh
 ```
 
-Then open <http://127.0.0.1:8000>.
+That creates `.venv` if missing, installs dependencies, starts the server and
+opens <http://127.0.0.1:8000> once it answers. Ctrl-C stops it. Runs from any
+directory.
+
+| Flag | Effect |
+| --- | --- |
+| `--port N` / `-p N` | Serve on a different port (default 8000) |
+| `--host H` | Bind address (default 127.0.0.1) |
+| `--no-browser` / `-n` | Start without opening a browser |
+| `--reload` / `-r` | Restart on source edits |
+| `--help` / `-h` | Usage |
+
+Re-running it while the dashboard is already up just opens the browser again
+rather than failing on the port. If something else holds the port, it says so and
+suggests the next one.
+
+By hand instead:
+
+```bash
+pip install -r dashboard/requirements.txt
+uvicorn dashboard.server.main:app --reload      # from the repo root
+```
 
 Copy the sample positions first, then edit them:
 
