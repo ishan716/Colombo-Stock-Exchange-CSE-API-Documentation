@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSE Dashboard Handbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+
+<style>
+:root {
+  --paper:   #eceef1;
+  --surface: #ffffff;
+  --sunk:    #e3e6ea;
+  --ink:     #141b26;
+  --body:    #2b3542;
+  --dim:     #5a6675;
+  --rule:    #d3d8de;
+  --rule-hi: #b9c1cb;
+  --accent:  #8a6a0f;
+  --accent-soft: rgba(138,106,15,0.10);
+  --up:      #0a6f40;
+  --down:    #a63019;
+  --shadow:  0 1px 2px rgba(20,27,38,0.06), 0 8px 24px rgba(20,27,38,0.05);
+
+  --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:   #10151c;
+    --surface: #171e27;
+    --sunk:    #1c242f;
+    --ink:     #e7ebf0;
+    --body:    #c5cdd7;
+    --dim:     #909dad;
+    --rule:    #28313d;
+    --rule-hi: #3a4552;
+    --accent:  #d4a63c;
+    --accent-soft: rgba(212,166,60,0.13);
+    --up:      #43c088;
+    --down:    #ea7358;
+    --shadow:  0 1px 2px rgba(0,0,0,0.35), 0 10px 28px rgba(0,0,0,0.28);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:   #10151c;
+  --surface: #171e27;
+  --sunk:    #1c242f;
+  --ink:     #e7ebf0;
+  --body:    #c5cdd7;
+  --dim:     #909dad;
+  --rule:    #28313d;
+  --rule-hi: #3a4552;
+  --accent:  #d4a63c;
+  --accent-soft: rgba(212,166,60,0.13);
+  --up:      #43c088;
+  --down:    #ea7358;
+  --shadow:  0 1px 2px rgba(0,0,0,0.35), 0 10px 28px rgba(0,0,0,0.28);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- shell ---------- */
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 28px 96px;
+}
+
+.masthead {
+  padding: 56px 0 30px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 14px;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(2.3rem, 5.2vw, 3.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+  margin: 0 0 16px;
+  text-wrap: balance;
+}
+
+.standfirst {
+  font-size: 1.075rem;
+  max-width: 62ch;
+  margin: 0;
+  color: var(--body);
+}
+
+.standfirst strong { color: var(--ink); font-weight: 600; }
+
+/* ---------- spec strip ---------- */
+
+.spec {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 40px;
+}
+
+.spec div {
+  padding: 16px 18px 18px 0;
+  border-right: 1px solid var(--rule);
+}
+.spec div:last-child { border-right: 0; }
+
+.spec dt {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 0 0 5px;
+}
+
+.spec dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 1.16rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+.spec dd span {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--dim);
+  letter-spacing: 0;
+}
+
+/* ---------- two column ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: 196px minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.rail {
+  position: sticky;
+  top: 24px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.rail p {
+  font-size: 10.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+
+.rail a {
+  color: var(--dim);
+  text-decoration: none;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 4px;
+  border-radius: 3px;
+}
+.rail a:hover { color: var(--ink); }
+.rail a span { color: var(--accent); }
+.rail a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- chapters ---------- */
+
+.chapter { padding-top: 8px; scroll-margin-top: 20px; }
+.chapter + .chapter { margin-top: 60px; }
+
+h2 {
+  font-family: var(--serif);
+  font-size: 1.72rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  margin: 0 0 6px;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.chapno {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 10px;
+}
+
+h3 {
+  font-family: var(--sans);
+  font-size: 1.005rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 34px 0 8px;
+  letter-spacing: -0.004em;
+}
+
+h4 {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 26px 0 8px;
+}
+
+p { margin: 0 0 14px; max-width: 70ch; }
+.chapter > p:first-of-type { margin-top: 14px; }
+
+strong { color: var(--ink); font-weight: 600; }
+
+a { color: var(--ink); text-decoration-color: var(--rule-hi); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--accent); }
+
+code {
+  font-family: var(--mono);
+  font-size: 0.855em;
+  background: var(--sunk);
+  padding: 1.5px 5px;
+  border-radius: 3px;
+  color: var(--ink);
+}
+
+ul.plain { margin: 0 0 16px; padding-left: 20px; max-width: 70ch; }
+ul.plain li { margin-bottom: 8px; }
+ul.plain li::marker { color: var(--accent); }
+
+/* ---------- code block ---------- */
+
+pre {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  padding: 15px 18px;
+  overflow-x: auto;
+  margin: 0 0 16px;
+  color: var(--ink);
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--dim); }
+
+/* ---------- tables ---------- */
+
+.tw { overflow-x: auto; margin: 0 0 18px; border-bottom: 1px solid var(--rule); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  min-width: 480px;
+}
+
+th {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-align: left;
+  padding: 0 14px 8px 0;
+  border-bottom: 1px solid var(--rule-hi);
+  white-space: nowrap;
+}
+
+td {
+  padding: 9px 14px 9px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  color: var(--body);
+}
+tr:last-child td { border-bottom: 0; }
+
+td.m, th.m { font-family: var(--mono); font-size: 12.5px; white-space: nowrap; color: var(--ink); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; padding-right: 20px; color: var(--ink); }
+th.num { text-align: right; padding-right: 20px; }
+td.up { color: var(--up); }
+td.down { color: var(--down); }
+
+/* ---------- callout ---------- */
+
+.note {
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  padding: 16px 18px;
+  margin: 0 0 18px;
+  max-width: 72ch;
+}
+.note p { margin: 0; font-size: 0.94rem; }
+.note p + p { margin-top: 10px; }
+
+.note .tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 7px;
+}
+
+.warn { border-left: 2px solid var(--down); }
+.warn .tag { color: var(--down); }
+
+/* ---------- figure ---------- */
+
+figure { margin: 22px 0 24px; }
+
+figure svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  color: var(--ink);
+}
+
+figcaption {
+  font-size: 0.855rem;
+  color: var(--dim);
+  margin-top: 12px;
+  max-width: 68ch;
+  line-height: 1.55;
+}
+
+.dg-box { fill: var(--surface); stroke: var(--rule-hi); stroke-width: 1.25; }
+.dg-inner { fill: var(--sunk); stroke: var(--rule-hi); stroke-width: 1; }
+.dg-frame { fill: none; stroke: var(--rule-hi); stroke-width: 1.25; stroke-dasharray: 4 4; }
+.dg-t { font-family: var(--mono); font-size: 12px; fill: var(--ink); }
+.dg-s { font-family: var(--mono); font-size: 10.5px; fill: var(--dim); }
+.dg-l { font-family: var(--mono); font-size: 10.5px; fill: var(--accent); }
+.dg-cap { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; fill: var(--dim); }
+.dg-line { stroke: var(--ink); stroke-width: 1.4; fill: none; }
+.dg-acc { stroke: var(--accent); stroke-width: 1.4; fill: none; }
+.dg-head { fill: var(--ink); }
+.dg-head-acc { fill: var(--accent); }
+
+/* ---------- footer ---------- */
+
+.colophon {
+  margin-top: 72px;
+  padding-top: 22px;
+  border-top: 2px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--dim);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+}
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; gap: 32px; }
+  .rail { position: static; }
+  .rail ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); display: grid; }
+  .shell { padding: 0 20px 72px; }
+  .masthead { padding-top: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="eyebrow">Operator's handbook · rev. 2026-09-08</p>
+    <h1>CSE Portfolio Dashboard</h1>
+    <p class="standfirst">A self-hosted dashboard that prices a Colombo Stock Exchange book against live
+    market data, and charts the price history of anything listed. This is the manual for
+    <strong>running it, trusting its numbers, and fixing it</strong> when it stops.</p>
+  </header>
+
+  <dl class="spec">
+    <div><dt>Session</dt><dd>09:30–14:30 <span>Asia/Colombo</span></dd></div>
+    <div><dt>Priced universe</dt><dd>286 <span>securities today</span></dd></div>
+    <div><dt>Book</dt><dd>5 <span>positions</span></dd></div>
+    <div><dt>History depth</dt><dd>240 <span>sessions, ~1 year</span></dd></div>
+    <div><dt>Sector indices</dt><dd>20 <span>+ ASPI, S&amp;P SL20</span></dd></div>
+    <div><dt>Test suite</dt><dd>27 <span>passing</span></dd></div>
+  </dl>
+
+  <div class="layout">
+
+    <nav class="rail" aria-label="Contents">
+      <p>Contents</p>
+      <ol>
+        <li><a href="#c1"><span>1</span> What it is</a></li>
+        <li><a href="#c2"><span>2</span> Architecture</a></li>
+        <li><a href="#c3"><span>3</span> Running it</a></li>
+        <li><a href="#c4"><span>4</span> The numbers</a></li>
+        <li><a href="#c5"><span>5</span> The live feed</a></li>
+        <li><a href="#c6"><span>6</span> Price history</a></li>
+        <li><a href="#c7"><span>7</span> API surface</a></li>
+        <li><a href="#c8"><span>8</span> Runbook</a></li>
+        <li><a href="#c9"><span>9</span> Limits</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <!-- 1 -->
+      <section class="chapter" id="c1">
+        <span class="chapno">Chapter 1</span>
+        <h2>What it is</h2>
+        <p>A FastAPI server and a static page. The server proxies the CSE's public API, values your
+        holdings against the live tape, holds one WebSocket connection open to the exchange and fans it
+        out to every browser tab, and charts the price history of any listed security on demand.</p>
+        <p>It exists because a broker's portfolio screen answers the wrong questions. It reports
+        allocation as a share count and profit against the average price rather than the break-even sale
+        price. This system fixes both, and adds a history lookup that is not limited to what you own.</p>
+
+        <h4>The map</h4>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Path</th><th>Holds</th></tr></thead>
+            <tbody>
+              <tr><td class="m">server/main.py</td><td>FastAPI app: routes, holdings file I/O, market-hours clock</td></tr>
+              <tr><td class="m">server/cse.py</td><td>Upstream REST client — headers, retries, endpoint wrappers</td></tr>
+              <tr><td class="m">server/cache.py</td><td>TTL cache with single-flight and stale-on-failure</td></tr>
+              <tr><td class="m">server/ws_relay.py</td><td>STOMP client, timestamp normalisation, browser fan-out</td></tr>
+              <tr><td class="m">server/portfolio.py</td><td>Pure valuation maths — no I/O, fully unit-tested</td></tr>
+              <tr><td class="m">server/securities.py</td><td>Typed label → security. Pure, unit-tested</td></tr>
+              <tr><td class="m">server/sectors.py</td><td>Hand-maintained symbol → sector table (see ch. 9)</td></tr>
+              <tr><td class="m">web/</td><td>The page — <code>app.js</code>, <code>charts.js</code>, no build step</td></tr>
+              <tr><td class="m">holdings.json</td><td>Your book. Plain JSON, edited in the UI or by hand</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="chapter" id="c2">
+        <span class="chapno">Chapter 2</span>
+        <h2>Architecture, and the three constraints that forced it</h2>
+        <p>Every structural decision here follows from something the CSE API will or won't do. None of
+        it is preference.</p>
+
+        <figure>
+          <svg viewBox="0 0 960 360" role="img" aria-label="Data flow: CSE REST is polled through a TTL cache and valued into the portfolio response, while one STOMP connection is held by the relay and pushed to every browser tab. The browser never contacts the exchange directly.">
+            <defs>
+              <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="dg-head"/>
+              </marker>
+              <marker id="ah-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="dg-head-acc"/>
+              </marker>
+            </defs>
+
+            <text x="24" y="30" class="dg-cap">UPSTREAM — WWW.CSE.LK</text>
+            <text x="344" y="30" class="dg-cap">THIS MACHINE</text>
+            <text x="740" y="30" class="dg-cap">BROWSER</text>
+
+            <rect x="24" y="90" width="200" height="54" rx="3" class="dg-box"/>
+            <text x="38" y="112" class="dg-t">REST /api/*</text>
+            <text x="38" y="131" class="dg-s">prices + chart series</text>
+
+            <rect x="24" y="254" width="200" height="54" rx="3" class="dg-box"/>
+            <text x="38" y="276" class="dg-t">STOMP over wss</text>
+            <text x="38" y="295" class="dg-s">7 topic feeds</text>
+
+            <rect x="320" y="58" width="300" height="282" rx="4" class="dg-frame"/>
+            <text x="334" y="78" class="dg-s">uvicorn · 127.0.0.1:8000</text>
+
+            <rect x="340" y="90" width="260" height="54" rx="3" class="dg-inner"/>
+            <text x="354" y="112" class="dg-t">TTL cache</text>
+            <text x="354" y="131" class="dg-s">single-flight, stale on failure</text>
+
+            <rect x="340" y="172" width="260" height="54" rx="3" class="dg-inner"/>
+            <text x="354" y="194" class="dg-t">portfolio.build()</text>
+            <text x="354" y="213" class="dg-s">pure, no I/O</text>
+
+            <rect x="340" y="254" width="260" height="54" rx="3" class="dg-inner"/>
+            <text x="354" y="276" class="dg-t">STOMP relay</text>
+            <text x="354" y="295" class="dg-s">one connection, N subscribers</text>
+
+            <rect x="730" y="80" width="200" height="200" rx="4" class="dg-frame"/>
+            <rect x="748" y="96" width="164" height="44" rx="3" class="dg-box"/>
+            <text x="762" y="123" class="dg-t">tab</text>
+            <rect x="748" y="160" width="164" height="44" rx="3" class="dg-box"/>
+            <text x="762" y="187" class="dg-t">tab</text>
+            <rect x="748" y="224" width="164" height="44" rx="3" class="dg-box"/>
+            <text x="762" y="251" class="dg-t">tab</text>
+
+            <path d="M 224 117 L 332 117" class="dg-line" marker-end="url(#ah)"/>
+            <text x="272" y="108" class="dg-l" text-anchor="middle">poll 15s/300s</text>
+
+            <path d="M 470 144 L 470 164" class="dg-line" marker-end="url(#ah)"/>
+            <text x="482" y="162" class="dg-l">tradeSummary</text>
+
+            <path d="M 224 281 L 332 281" class="dg-acc" marker-end="url(#ah-acc)"/>
+            <text x="272" y="272" class="dg-l" text-anchor="middle">one connection</text>
+
+            <path d="M 620 197 L 722 152" class="dg-line" marker-end="url(#ah)"/>
+            <text x="628" y="214" class="dg-l">GET /api/portfolio</text>
+
+            <path d="M 620 279 L 722 248" class="dg-acc" marker-end="url(#ah-acc)"/>
+            <text x="628" y="298" class="dg-l">WS /ws → every tab</text>
+          </svg>
+          <figcaption>Two independent paths reach the browser. Prices travel REST-and-cache because the
+          WebSocket cannot price an arbitrary book; the market-wide widgets travel the relay because a
+          single held connection is what the exchange asks for. Nothing in the browser ever contacts
+          cse.lk directly — it cannot, as constraint 1 explains.</figcaption>
+        </figure>
+
+        <h3>Constraint 1 — CORS is closed, so the browser can never call CSE</h3>
+        <p><code>POST /api/tradeSummary</code> returns <code>200</code> with no <code>Origin</code>
+        header and <code>403</code> with any foreign one; the preflight carries no
+        <code>Access-Control-Allow-Origin</code>. A browser-only dashboard is impossible. Every upstream
+        call is made server-side with the site's own <code>Origin</code>, <code>Referer</code> and a
+        browser <code>User-Agent</code> — remove any of those three and you get a 403.</p>
+
+        <h3>Constraint 2 — only one endpoint prices the whole market</h3>
+        <p><code>todaySharePrice</code> returns ten rows, the first ten alphabetically, over both REST
+        and WebSocket. It cannot value an arbitrary portfolio. <code>POST /api/tradeSummary</code> is the
+        only full-market price source, which is why valuation polls REST on a timer while the live feed
+        drives only the market-wide widgets.</p>
+        <div class="note">
+          <span class="tag">Don't hard-code the row count</span>
+          <p>That endpoint returned 281 rows when the API notes were written, 291 in an earlier revision
+          of this handbook, and <strong>286</strong> today. The count drifts as listings change, so
+          treat it as an observation rather than a constant — nothing in the code depends on it.</p>
+        </div>
+
+        <h3>Constraint 3 — no security maps to a sector</h3>
+        <p>No sector field exists in <code>tradeSummary</code>, <code>companyInfoSummery</code>,
+        <code>allSecurityCode</code> or <code>cntSecurity</code>, and the sector-constituent endpoints
+        404. <code>/api/allSectors</code> gives the sector indices, which is enough to draw the heatmap,
+        but mapping <em>your</em> holdings to sectors needs the hand-kept table in
+        <code>server/sectors.py</code>.</p>
+
+        <h4>Politeness budget</h4>
+        <p>Ten open tabs must not become ten upstream calls. The TTL cache runs single-flight:
+        concurrent callers for one key await a single in-flight fetch, and everyone else is served from
+        memory until the TTL expires. If a refresh fails while a stale value is held, the stale value is
+        served — a slightly old price beats an error card — and the age is reported to the page so the
+        staleness is visible rather than silent.</p>
+
+        <div class="tw">
+          <table>
+            <thead><tr><th>Key</th><th class="num">TTL, market open</th><th class="num">TTL, closed</th></tr></thead>
+            <tbody>
+              <tr><td class="m">tradeSummary</td><td class="num">15 s</td><td class="num">300 s</td></tr>
+              <tr><td class="m">allSectors</td><td class="num">60 s</td><td class="num">60 s</td></tr>
+              <tr><td class="m">chart:{id}:{period}</td><td class="num">900 s</td><td class="num">900 s</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The browser polls <code>/api/portfolio</code> every 20 s and sectors every 60 s, so a poll
+        usually lands on a warm cache rather than the wire. Failed upstream calls retry three times with
+        0.5 s, 1 s, 2 s backoff before surfacing a <code>502</code>.</p>
+      </section>
+
+      <!-- 3 -->
+      <section class="chapter" id="c3">
+        <span class="chapno">Chapter 3</span>
+        <h2>Running it</h2>
+        <p>The virtualenv lives at the repository root, not inside <code>dashboard/</code>. Always start
+        the server from the repo root — <code>dashboard.server.main</code> is a package path.</p>
+
+        <pre><code><span class="c"># first time only</span>
+python3 -m venv .venv
+.venv/bin/pip install -r dashboard/requirements.txt
+
+<span class="c"># every time</span>
+.venv/bin/python -m uvicorn dashboard.server.main:app --reload</code></pre>
+
+        <p>Then open <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>. A healthy start prints
+        the usual uvicorn lines and then, within a second or two, the relay:</p>
+
+        <pre><code>INFO:     Application startup complete.
+INFO dashboard.server.ws_relay: relay connected to wss://www.cse.lk/api/ws/websocket</code></pre>
+
+        <p>If that second line never appears the page still works — prices and history come from REST —
+        but the indices, gainers, losers and most-active panels stay on <em>waiting for feed…</em>.</p>
+
+        <h4>Verify without opening a browser</h4>
+        <pre><code>curl -s localhost:8000/api/health
+<span class="c"># {"ok":true,"relayConnected":true,"marketOpen":false}</span></code></pre>
+
+        <h4>Tests</h4>
+        <pre><code>.venv/bin/python -m pytest dashboard/tests/ -q
+<span class="c"># 27 passed</span></code></pre>
+        <p>They need no network. <code>test_portfolio.py</code> pins the valuation maths to figures
+        verified against live quotes, <code>test_securities.py</code> pins symbol resolution, and
+        <code>test_relay.py</code> pins STOMP framing and timestamp normalisation.</p>
+      </section>
+
+      <!-- 4 -->
+      <section class="chapter" id="c4">
+        <span class="chapno">Chapter 4</span>
+        <h2>The numbers, and why they differ from your broker's</h2>
+        <p>All valuation lives in <code>server/portfolio.py</code> as pure functions over a holdings list
+        and one <code>tradeSummary</code> snapshot. Two figures deliberately disagree with the broker's
+        portfolio screen.</p>
+
+        <h3>Cost weight, not share-count weight</h3>
+        <p>The broker's "Holding %" is <code>qty ÷ total shares</code>. Across the sample book's 875
+        shares, RCL's 500 shares are 57.14% by that measure — but at cost RCL is 25,000.00 of 55,750.00,
+        which is 44.84%. Share-count weight systematically overstates low-priced lines and is close to
+        meaningless for allocation. This dashboard shows cost weight and market-value weight instead.</p>
+
+        <p class="muted">The figures below use the placeholder positions in
+        <code>holdings.sample.json</code>, not a real book.</p>
+
+        <div class="tw">
+          <table>
+            <thead>
+              <tr><th>Symbol</th><th class="num">Qty</th><th class="num">Avg</th><th class="num">Cost</th>
+              <th class="num">Broker "Holding %"</th><th class="num">Cost weight</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="m">RCL.N0000</td><td class="num">500</td><td class="num">50.00</td><td class="num">25,000.00</td><td class="num">57.14%</td><td class="num">44.84%</td></tr>
+              <tr><td class="m">SEYB.X0000</td><td class="num">200</td><td class="num">70.00</td><td class="num">14,000.00</td><td class="num">22.86%</td><td class="num">25.11%</td></tr>
+              <tr><td class="m">AAIC.N0000</td><td class="num">100</td><td class="num">80.00</td><td class="num">8,000.00</td><td class="num">11.43%</td><td class="num">14.35%</td></tr>
+              <tr><td class="m">ACL.N0000</td><td class="num">50</td><td class="num">100.00</td><td class="num">5,000.00</td><td class="num">5.71%</td><td class="num">8.97%</td></tr>
+              <tr><td class="m">SPEN.N0000</td><td class="num">25</td><td class="num">150.00</td><td class="num">3,750.00</td><td class="num">2.86%</td><td class="num">6.73%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The two columns disagree on every line. RCL looks like 57% of the book by share count while
+        being 45% of the capital in it, and SPEN — the most expensive line — is understated at 2.86%
+        against a true 6.73%.</p>
+
+        <h3>Profit against the break-even sale price</h3>
+        <p>The B.E.S. price includes round-trip fees, so it is the price a line must actually clear to
+        stop losing money. Every position carries both: <code>pnl</code> against the average price, and
+        <code>pnl_vs_bes</code> against B.E.S. The second is always the harsher number — a unit test
+        enforces that it can never come out better. When <code>besPrice</code> is absent from a holding
+        it falls back to the average price rather than failing.</p>
+
+        <h4>What a position is worth</h4>
+        <pre><code>market_value = qty × price
+pnl          = market_value − qty × avg_price
+pnl_vs_bes   = market_value − qty × bes_price
+day_change   = qty × (price − previousClose)</code></pre>
+
+        <div class="note">
+          <span class="tag">Test fixture</span>
+          <p>The suite pins the sample book to cost <strong>55,750.00</strong>, market value
+          <strong>54,895.00</strong>, P&amp;L <strong>−855.00 (−1.53%)</strong> against a captured set
+          of quotes. Those are fixed numbers for a fixed snapshot — the live figures move with the tape.
+          If the tests fail on those three lines after you edit <code>portfolio.py</code>, the maths
+          changed, not the market.</p>
+        </div>
+
+        <div class="note">
+          <span class="tag">Missing prices</span>
+          <p>A symbol absent from <code>tradeSummary</code>, or priced at zero, is kept in the table
+          flagged <em>unpriced</em> and listed in <code>portfolio.unpriced</code>. It contributes its
+          cost to the total but no market value. Dropping it silently would misstate the book, so the
+          gap is shown instead.</p>
+        </div>
+      </section>
+
+      <!-- 5 -->
+      <section class="chapter" id="c5">
+        <span class="chapno">Chapter 5</span>
+        <h2>The live feed</h2>
+        <p>The server holds exactly one STOMP connection to
+        <code>wss://www.cse.lk/api/ws/websocket</code> and rebroadcasts it. Browser tabs connect to this
+        server's own <code>/ws</code>, never to the exchange. On connect the relay subscribes to both
+        <code>/topic/{feed}</code> and <code>/user/topic/{feed}</code> for seven feeds, sends one
+        snapshot request per feed, and then listens for broadcasts only.</p>
+
+        <div class="tw">
+          <table>
+            <thead><tr><th>Feed</th><th>Drives</th></tr></thead>
+            <tbody>
+              <tr><td class="m">aspi, snp</td><td>The two index cards in the header</td></tr>
+              <tr><td class="m">summary</td><td>Market turnover, share volume, trade count</td></tr>
+              <tr><td class="m">status</td><td>Exchange open/closed state as the exchange reports it</td></tr>
+              <tr><td class="m">top-gainers, top-looses</td><td>Leaderboards, with your symbols badged HELD</td></tr>
+              <tr><td class="m">most-active-trades</td><td>Volume leaders — note these rows carry no <code>price</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Three quirks the relay absorbs</h4>
+        <ul class="plain">
+          <li><strong>Silence is normal.</strong> The server negotiates <code>heart-beat:0,0</code> and
+          sends nothing when idle. The socket read uses a 5-second timeout and loops on expiry; treating
+          silence as a dropped connection would reconnect forever.</li>
+          <li><strong>Timestamps arrive in two shapes.</strong> Epoch integers on
+          <code>/user/topic/*</code> replies, ISO-8601 strings on <code>/topic/*</code> broadcasts.
+          <code>normalise()</code> walks each payload and rewrites <code>timestamp</code>,
+          <code>tradeDate</code>, <code>tradesTime</code> and <code>lastTradedTime</code> to epoch
+          milliseconds so the page never has to guess.</li>
+          <li><strong>A slow tab cannot stall the exchange.</strong> Each subscriber gets a bounded
+          queue of 100 messages; overflow is dropped rather than backing up the relay, and the tab
+          re-syncs from the snapshot frame on its next reconnect.</li>
+        </ul>
+
+        <p>On any error the relay marks itself disconnected, publishes that state to every tab so the
+        feed pill goes amber, and retries after 5 seconds — the same delay the exchange's own client
+        uses. New tabs are sent a <code>_snapshot</code> frame containing everything currently held, so a
+        tab opened mid-session paints immediately instead of waiting for the next broadcast.</p>
+      </section>
+
+      <!-- 6 -->
+      <section class="chapter" id="c6">
+        <span class="chapno">Chapter 6</span>
+        <h2>Price history</h2>
+        <p>Type a symbol, a bare ticker or a company name into the <strong>Price history</strong> card to
+        chart any listed security and export the series as CSV. It is not limited to what you hold.</p>
+
+        <figure>
+          <svg viewBox="0 0 1020 190" role="img" aria-label="Pipeline: a typed label is resolved against the live security list into a numeric stockId, which the chart endpoint accepts, returning the series that is drawn and exported.">
+            <defs>
+              <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="dg-head"/>
+              </marker>
+            </defs>
+
+            <rect x="20" y="70" width="160" height="64" rx="3" class="dg-box"/>
+            <text x="34" y="98" class="dg-t">LOLC</text>
+            <text x="34" y="117" class="dg-s">what you type</text>
+
+            <rect x="270" y="70" width="180" height="64" rx="3" class="dg-inner"/>
+            <text x="284" y="98" class="dg-t">securities.resolve()</text>
+            <text x="284" y="117" class="dg-s">match in tradeSummary</text>
+
+            <rect x="540" y="70" width="220" height="64" rx="3" class="dg-box"/>
+            <text x="554" y="98" class="dg-t">companyChartDataByStock</text>
+            <text x="554" y="117" class="dg-s">stockId=410 · period=5</text>
+
+            <rect x="850" y="70" width="150" height="64" rx="3" class="dg-inner"/>
+            <text x="864" y="98" class="dg-t">chart + CSV</text>
+            <text x="864" y="117" class="dg-s">241 sessions</text>
+
+            <path d="M 180 102 L 262 102" class="dg-line" marker-end="url(#ah2)"/>
+            <text x="225" y="93" class="dg-l" text-anchor="middle">typed label</text>
+
+            <path d="M 450 102 L 532 102" class="dg-line" marker-end="url(#ah2)"/>
+            <text x="495" y="93" class="dg-l" text-anchor="middle">stockId 410</text>
+
+            <path d="M 760 102 L 842 102" class="dg-line" marker-end="url(#ah2)"/>
+            <text x="801" y="93" class="dg-l" text-anchor="middle">241 points</text>
+          </svg>
+          <figcaption>The chart endpoint accepts only a numeric <code>stockId</code>, so the resolver
+          stands between what a person types and what the API will answer. That is also where the
+          voting/non-voting ambiguity is caught.</figcaption>
+        </figure>
+
+        <h3>What the resolver accepts</h3>
+        <p>The <code>stockId</code> it resolves to is the <code>id</code> field from
+        <code>tradeSummary</code> — <em>not</em> the <code>securityId</code> returned by
+        <code>companyInfoSummery</code>. Lookups run in this order, and stop at the first hit:</p>
+
+        <div class="tw">
+          <table>
+            <thead><tr><th>You type</th><th>Rule</th><th class="m">Resolves to</th></tr></thead>
+            <tbody>
+              <tr><td class="m">LOLC.N0000</td><td>Exact symbol, case-insensitive</td><td class="m">stockId 410</td></tr>
+              <tr><td class="m">lolc</td><td>Bare ticker — the voting line wins</td><td class="m">LOLC.N0000</td></tr>
+              <tr><td class="m">&nbsp;&nbsp;seyb&nbsp;&nbsp;</td><td>Whitespace trimmed</td><td class="m">SEYB.N0000</td></tr>
+              <tr><td class="m">softlogic</td><td>Company-name substring</td><td class="m">AAIC.N0000</td></tr>
+              <tr><td class="m">ZZZZ</td><td>No match</td><td class="m">404</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note">
+          <span class="tag">Why the response names what it charted</span>
+          <p><code>SEYB.N0000</code> and <code>SEYB.X0000</code> are different securities trading at
+          different prices. A bare <code>SEYB</code> resolves to the voting line, and the other share
+          class comes back in <code>alternatives</code> so the note under the chart can offer it.
+          Charting one and staying quiet about the other would be wrong in a way nobody would notice.</p>
+        </div>
+
+        <h3>Periods</h3>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Period</th><th class="num">Value</th><th>Points</th></tr></thead>
+            <tbody>
+              <tr><td>Intraday</td><td class="num">1</td><td>~300 individual trades</td></tr>
+              <tr><td>1 week</td><td class="num">2</td><td>5 sessions</td></tr>
+              <tr><td>1 month</td><td class="num">3</td><td>20 sessions</td></tr>
+              <tr><td>1 quarter</td><td class="num">4</td><td>60 sessions</td></tr>
+              <tr><td>1 year</td><td class="num">5</td><td>240 sessions</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Values <code>6</code> and <code>7</code> silently alias to <code>2</code> upstream, so the
+        picker does not offer them and the endpoint rejects them with a <code>400</code>.</p>
+
+        <h3>CSV export</h3>
+        <p>The export is built in the browser from the series already charted, so the file and the
+        picture can never disagree. Daily periods write
+        <code>date,close,high,low,volume</code>; intraday writes <code>timestamp,…</code> with the time
+        of each trade. The filename carries the security and period, e.g.
+        <code>LOLC.N0000_1year_2026-09-08.csv</code>.</p>
+
+        <div class="note">
+          <span class="tag">Field notes</span>
+          <p><code>volume</code> is the series' <code>q</code> field, which matches
+          <code>tradeSummary.sharevolume</code> exactly on the latest point — that is how it was
+          identified. The series also carries <code>s</code>, which looks like a statistic but is a row
+          id (on intraday it equals the trade's own <code>id</code>), so it is deliberately dropped
+          rather than exported as a number someone might sum.</p>
+          <p><code>o</code>, <code>c</code>, <code>pc</code> and <code>n</code> come back null on daily
+          series and are not exported either.</p>
+        </div>
+
+        <div class="note warn">
+          <span class="tag">Prices are unadjusted</span>
+          <p>CSE's chart endpoints return raw traded prices with no back-adjustment for corporate
+          actions. ACL.N0000's roughly 3-for-1 split on 2025-12-29 appears in its own series as a 67%
+          crash. The note under every chart says so, because the alternative — quietly smoothing it —
+          would hide a real event. A step change may be a change in share count rather than value.</p>
+        </div>
+
+        <div class="note">
+          <span class="tag">Colombo midnight</span>
+          <p>Daily points are epoch milliseconds at Colombo <em>local</em> midnight. The page formats
+          them with an explicit <code>Asia/Colombo</code> time zone: formatting in UTC would render
+          every date one day early, and would do it on any machine, not just one abroad.</p>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section class="chapter" id="c7">
+        <span class="chapno">Chapter 7</span>
+        <h2>API surface</h2>
+        <p>Everything the page uses. All local, all unauthenticated.</p>
+
+        <div class="tw">
+          <table>
+            <thead><tr><th>Route</th><th>Returns</th></tr></thead>
+            <tbody>
+              <tr><td class="m">GET /api/health</td><td><code>ok</code>, <code>relayConnected</code>, <code>marketOpen</code></td></tr>
+              <tr><td class="m">GET /api/portfolio</td><td>Valued book, plus <code>asOfAgeSeconds</code> so the page can show price age</td></tr>
+              <tr><td class="m">GET /api/holdings</td><td>The raw holdings list</td></tr>
+              <tr><td class="m">PUT /api/holdings</td><td>Validates, then writes atomically via temp file + <code>os.replace</code></td></tr>
+              <tr><td class="m">GET /api/securities</td><td>Every symbol with its <code>stockId</code>, for the picker</td></tr>
+              <tr><td class="m">GET /api/stock/history</td><td><code>?symbol=&amp;period=</code> — resolved security, its series, and any other share class it could have meant</td></tr>
+              <tr><td class="m">GET /api/sectors</td><td>Sector indices, best first, nulls last; ASPI and S&amp;P removed</td></tr>
+              <tr><td class="m">GET /api/market</td><td>First-paint snapshot of every relay feed</td></tr>
+              <tr><td class="m">GET /api/chart/{stock_id}</td><td>Series by numeric id, for the table sparklines</td></tr>
+              <tr><td class="m">WS /ws</td><td>Snapshot frame, then one message per upstream broadcast</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Upstream endpoints consumed</h4>
+        <p><code>tradeSummary</code>, <code>allSectors</code>, <code>marketStatus</code>,
+        <code>marketSummery</code>, <code>aspiData</code>, <code>snpData</code>,
+        <code>topGainers</code>, <code>topLooses</code>, <code>mostActiveTrades</code>,
+        <code>companyChartDataByStock</code>, <code>chartData</code>.</p>
+        <p>One shape trap worth remembering: <code>companyChartDataByStock</code> wraps its series in a
+        <code>{"chartData": [...]}</code> envelope, where <code>chartData</code> returns a bare list.</p>
+      </section>
+
+      <!-- 8 -->
+      <section class="chapter" id="c8">
+        <span class="chapno">Chapter 8</span>
+        <h2>Runbook</h2>
+
+        <div class="tw">
+          <table>
+            <thead><tr><th>Symptom</th><th>Cause and fix</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="m">502 upstream unavailable</td>
+                <td>Three retries to CSE all failed. Check the exchange is up; if it is, the request headers are the usual culprit — <code>Origin</code>, <code>Referer</code> and a browser <code>User-Agent</code> are all required by the upstream.</td>
+              </tr>
+              <tr>
+                <td class="m">Feed pill stuck on <em>connecting</em></td>
+                <td>The relay is retrying every 5 s. Look for <code>relay error:</code> in the server log. Prices and history are unaffected — they come from REST.</td>
+              </tr>
+              <tr>
+                <td class="m">Prices frozen, age pill climbing</td>
+                <td>The cache is serving a stale value because refreshes are failing. This is deliberate. <code>asOfAgeSeconds</code> tells you how stale; the underlying failure is in the log.</td>
+              </tr>
+              <tr>
+                <td class="m">A row reads <em>unpriced</em></td>
+                <td>That symbol is not in <code>tradeSummary</code> — a typo, a suspension, or a delisting. Check the exact ticker including the <code>.N0000</code> / <code>.X0000</code> suffix.</td>
+              </tr>
+              <tr>
+                <td class="m">"no security matches …"</td>
+                <td>The label did not resolve. Try the bare ticker, or part of the company name; the picker's dropdown lists every symbol the server knows.</td>
+              </tr>
+              <tr>
+                <td class="m">History charts the wrong share class</td>
+                <td>A bare ticker resolves to the voting line. Type the full symbol — the note under the chart names the alternatives it found.</td>
+              </tr>
+              <tr>
+                <td class="m">A chart shows a crash you don't recognise</td>
+                <td>Almost certainly a corporate action, not a collapse. Prices are unadjusted; check the security's split history around that date.</td>
+              </tr>
+              <tr>
+                <td class="m">Export CSV does nothing</td>
+                <td>The button stays disabled until a series has loaded. If a chart is showing and it still does nothing, check the browser console — the download is a blob created in the page.</td>
+              </tr>
+              <tr>
+                <td class="m">ModuleNotFoundError: dashboard</td>
+                <td>uvicorn was started from inside <code>dashboard/</code>. Start it from the repository root.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 9 -->
+      <section class="chapter" id="c9">
+        <span class="chapno">Chapter 9</span>
+        <h2>Limits, and what not to trust</h2>
+
+        <div class="note warn">
+          <span class="tag">Not verified</span>
+          <p>The symbol-to-sector table in <code>server/sectors.py</code> is entered by hand and has
+          <strong>not</strong> been checked against an authoritative CSE source. Sector exposure and the
+          <em>held</em> outlines on the heatmap are only as good as that table. Treat it as a starting
+          point and correct it as you find errors; unmapped symbols fall through to
+          <em>Unclassified</em> rather than being dropped.</p>
+        </div>
+
+        <div class="note warn">
+          <span class="tag">No authentication</span>
+          <p><code>holdings.json</code> is a plaintext local file and nothing in this system checks who
+          is asking. Anyone who can reach the port can read your book and rewrite it through
+          <code>PUT /api/holdings</code>. Bind to localhost. Do not deploy this as-is.</p>
+        </div>
+
+        <ul class="plain">
+          <li><strong>Nothing is kept.</strong> This system stores no history of its own — every figure
+          on the page is fetched live and gone when the process exits. <code>tradeSummary</code>,
+          <code>allSectors</code> and <code>dailyMarketSummery</code> only ever answer with
+          <em>today</em>, so a day's breadth, turnover and foreign flows cannot be recovered afterwards,
+          and no record exists of what your book was worth on any past day. The chart endpoints reach
+          back about a year, but only as prices.</li>
+          <li><strong>Market hours are hard-coded</strong> as 09:30–14:30 weekdays. Public holidays are
+          not known to the clock, so the page may claim "open" on a day the exchange is shut.</li>
+          <li><strong>Every price series is unadjusted,</strong> sparklines included. A line crossing a
+          corporate action is misleading in exactly the same way, whether it is 68 pixels wide in the
+          holdings table or full width in the history card.</li>
+          <li><strong>The security list is a snapshot too.</strong> The picker is built from the same
+          cached <code>tradeSummary</code> as everything else, so a security suspended today simply will
+          not be offered.</li>
+        </ul>
+      </section>
+
+      <div class="colophon">
+        <span>CSE Portfolio Dashboard</span>
+        <span>FastAPI · vanilla JS · no database</span>
+        <span>Handbook revised 2026-09-08</span>
+        <span>Bind to localhost</span>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

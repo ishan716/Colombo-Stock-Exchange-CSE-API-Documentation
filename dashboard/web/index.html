@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSE Portfolio Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>📈</text></svg>">
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>CSE Portfolio</h1>
+    <span class="pill" id="market-pill"><span class="dot"></span><span id="market-text">…</span></span>
+    <span class="pill" id="feed-pill"><span class="dot"></span><span id="feed-text">connecting</span></span>
+    <span class="pill" id="age-pill" hidden><span class="dot"></span><span id="age-text"></span></span>
+    <div class="spacer"></div>
+    <button id="edit-btn">Edit holdings</button>
+    <button id="refresh-btn">Refresh</button>
+  </header>
+
+  <div id="error-slot"></div>
+
+  <!-- hero -->
+  <section class="hero">
+    <div class="stat">
+      <div class="label">Market value</div>
+      <div class="value" id="h-value">—</div>
+      <div class="sub" id="h-cost"></div>
+    </div>
+    <div class="stat">
+      <div class="label">Total P&amp;L</div>
+      <div class="value" id="h-pnl">—</div>
+      <div class="sub" id="h-pnlpct"></div>
+    </div>
+    <div class="stat">
+      <div class="label">Today</div>
+      <div class="value" id="h-day">—</div>
+      <div class="sub" id="h-daypct"></div>
+    </div>
+    <div class="stat">
+      <div class="label">Positions</div>
+      <div class="value" id="h-count">—</div>
+      <div class="sub" id="h-best"></div>
+    </div>
+  </section>
+
+  <!-- holdings: full width so all 12 columns fit without clipping -->
+  <section class="card" style="margin-bottom:14px">
+    <h2>Holdings</h2>
+    <div class="tablewrap">
+      <table id="holdings-table">
+        <thead>
+          <tr>
+            <th data-sort="symbol">Symbol</th>
+            <th class="nosort">Trend</th>
+            <th data-sort="qty">Qty</th>
+            <th data-sort="avg_price">Avg</th>
+            <th data-sort="bes_price">B.E.S.</th>
+            <th data-sort="last_price">Last</th>
+            <th data-sort="day_change">Day</th>
+            <th data-sort="market_value">Value</th>
+            <th data-sort="pnl">P&amp;L</th>
+            <th data-sort="pnl_pct">P&amp;L %</th>
+            <th data-sort="pnl_vs_bes_pct">vs B.E.S.</th>
+            <th data-sort="cost_weight">Cost wt</th>
+          </tr>
+        </thead>
+        <tbody id="holdings-body"></tbody>
+        <tfoot id="holdings-foot"></tfoot>
+      </table>
+    </div>
+    <p class="note">
+      <strong>Cost wt</strong> replaces your broker's “Holding %”, which is share-count
+      weight (qty ÷ total shares) and overstates low-priced lines — it shows RCL at
+      57.14% of shares where its real cost weight is 44.84%.
+      <strong>vs B.E.S.</strong> measures against the break-even sale price, i.e. after
+      round-trip fees — that is the number that decides whether a sale actually profits.
+    </p>
+  </section>
+
+  <!-- price history explorer -->
+  <section class="card" style="margin-bottom:14px">
+    <h2>Price history <span id="sh-meta" style="text-transform:none;letter-spacing:0;color:var(--dim);font-weight:400"></span></h2>
+
+    <form class="controls" id="sh-form" autocomplete="off">
+      <input id="sh-symbol" list="sh-list" spellcheck="false"
+             placeholder="Symbol or company — LOLC, SAMP.N0000, softlogic…"
+             aria-label="Stock label">
+      <datalist id="sh-list"></datalist>
+      <select id="sh-period" aria-label="Period">
+        <option value="1">Intraday</option>
+        <option value="2">1 week</option>
+        <option value="3">1 month</option>
+        <option value="4">1 quarter</option>
+        <option value="5" selected>1 year</option>
+      </select>
+      <button type="submit" class="primary">Show</button>
+      <button type="button" id="sh-csv" disabled>Export CSV</button>
+    </form>
+
+    <div id="sh-error" class="err" hidden></div>
+    <div class="chartbox" style="height:300px"><canvas id="sh-chart"></canvas></div>
+    <p class="note" id="sh-note"></p>
+  </section>
+
+  <section class="grid cols-3" style="margin-bottom:14px">
+    <div class="card">
+      <h2>Indices</h2>
+      <div class="indices" id="indices"><div class="empty">waiting for feed…</div></div>
+    </div>
+    <div class="card">
+      <h2>Allocation by value</h2>
+      <div class="donutbox"><canvas id="alloc-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>Sector exposure</h2>
+      <div class="donutbox"><canvas id="sector-chart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- market context -->
+  <section class="card" style="margin-bottom:14px">
+    <h2>Sector performance <span style="text-transform:none;letter-spacing:0;color:var(--dim);font-weight:400">— tile size by turnover, outlined where you hold</span></h2>
+    <div class="heatmap" id="heatmap"><div class="empty">loading…</div></div>
+  </section>
+
+  <section class="grid cols-3">
+    <div class="card">
+      <h2>Top gainers</h2>
+      <div class="leaders" id="gainers"><div class="empty">waiting for feed…</div></div>
+    </div>
+    <div class="card">
+      <h2>Top losers</h2>
+      <div class="leaders" id="losers"><div class="empty">waiting for feed…</div></div>
+    </div>
+    <div class="card">
+      <h2>Most active <span style="text-transform:none;letter-spacing:0;color:var(--dim);font-weight:400">— shares / turnover</span></h2>
+      <div class="leaders" id="active"><div class="empty">waiting for feed…</div></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- holdings editor -->
+<dialog id="editor">
+  <div class="modal-head"><h3>Edit holdings</h3></div>
+  <div class="modal-body">
+    <div class="hrow hrow-head">
+      <div>Symbol</div><div>Qty</div><div>Avg price</div><div>B.E.S. price</div><div></div>
+    </div>
+    <div id="editor-rows"></div>
+    <button id="add-row" style="margin-top:8px">+ Add position</button>
+    <div id="editor-error" class="err" hidden></div>
+  </div>
+  <div class="modal-foot">
+    <button id="cancel-edit">Cancel</button>
+    <button id="save-edit" class="primary">Save</button>
+  </div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

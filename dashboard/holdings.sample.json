@@ -1,0 +1,7 @@
+[
+  { "symbol": "AAIC.N0000", "qty": 100, "avgPrice": 80.00,  "besPrice": 80.90 },
+  { "symbol": "ACL.N0000",  "qty": 50,  "avgPrice": 100.00, "besPrice": 101.10 },
+  { "symbol": "RCL.N0000",  "qty": 500, "avgPrice": 50.00,  "besPrice": 50.55 },
+  { "symbol": "SEYB.X0000", "qty": 200, "avgPrice": 70.00,  "besPrice": 70.80 },
+  { "symbol": "SPEN.N0000", "qty": 25,  "avgPrice": 150.00, "besPrice": 151.65 }
+]
